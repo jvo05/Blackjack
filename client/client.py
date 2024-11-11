@@ -19,12 +19,9 @@ def start_client():
     while True:
         move = input("Enter 'hit' to draw a card or 'stand' to hold: ").strip().lower()
         
-        if move not in ['hit', 'stand', 'exit']:
-            print("Invalid command. Please enter 'hit', 'stand' or 'exit'.")
+        if move not in ['hit', 'stand']:
+            print("Invalid command. Please enter 'hit' or 'stand'.")
             continue
-
-        if(move == "exit"):
-            client.close()
 
         # Send action to server
         client.sendall(json.dumps({"action": move}).encode())
@@ -43,6 +40,8 @@ def start_client():
             break
         else:
             print(f"Your hand: {response_data['player_hand']} (Total: {response_data['player_total']})")
+
+    client.close()
 
 if __name__ == "__main__":
     start_client()
