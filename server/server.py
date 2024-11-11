@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from websockets.sync.server import serve
 import config
-import utils.cards
+import utils.hand
 import json
 
 def echo(websocket):
@@ -18,8 +18,8 @@ def echo(websocket):
             websocket.send(json.dumps(error_response))
 
 def main():
-    dealer = utils.cards.Player()
-    player = utils.cards.Player()
+    dealer = utils.hand.Hand()
+    player = utils.hand.hand()
     with serve(echo, config.host, config.port) as server:
         print(f"Server running on ws://{config.host}:{config.port}")
         server.serve_forever()

@@ -2,7 +2,7 @@ import random
 
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11] * 4
 
-class Player:
+class Hand:
     def __init__(self) -> None:
         self.hand = []
         self.add_random_card()
