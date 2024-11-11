@@ -1,2 +1,2 @@
 # Blackjack
-Python Wegsacket for Blackjack
+Python Websocket Blackjack Client/Server
