@@ -6,7 +6,7 @@ import utils.hand
 import asyncio
 
 
-async def echo(websocket, path):
+async def echo(websocket):
     # Initialize player and dealer hands for each client session
     player = utils.hand.Hand()
     dealer = utils.hand.Hand()
@@ -16,10 +16,14 @@ async def echo(websocket, path):
             data = json.loads(message)
             print("Json received:", data)
 
-            response = {"status": "ok", "received": data}
-            await websocket.send(json.dumps(response))
-
-            if data.get("action") == "stand":
+            if data.get("action") == "start":
+                response = {
+                    "player":player.hand,
+                    "player_total":player.calculate_score(),
+                    "dealer":dealer.hand
+                }
+                await websocket.send(json.dumps(response))
+            elif data.get("action") == "stand":
                 # Dealer's turn to draw cards
                 while dealer.calculate_score() < 17:
                     dealer.add_random_card()
@@ -30,13 +34,41 @@ async def echo(websocket, path):
 
                 # Determine the winner
                 if dealer_score > 21:
-                    result = {"status": "win", "message": "Dealer busts! Player wins!"}
+                    result = {
+                        "status": "win",
+                        "message": "Dealer busts! Player wins!",
+                        "player": player.hand,
+                        "player_total": player.calculate_score(),
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
                 elif player_score > dealer_score:
-                    result = {"status": "win", "message": "Player wins!"}
+                    result = {
+                        "status": "win",
+                        "message": "Player wins!",
+                        "player": player.hand,
+                        "player_total": player.calculate_score(),
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
                 elif player_score < dealer_score:
-                    result = {"status": "lose", "message": "Dealer wins!"}
+                    result = {
+                        "status": "lose",
+                        "message": "Dealer wins!",
+                        "player": player.hand,
+                        "player_total": player.calculate_score(),
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
                 else:
-                    result = {"status": "push", "message": "It's a tie!"}
+                    result = {
+                        "status": "push",
+                        "message": "It's a tie!",
+                        "player": player.hand,
+                        "player_total": player.calculate_score(),
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
 
                 await websocket.send(json.dumps(result))
                 break  # End game after stand
@@ -50,24 +82,56 @@ async def echo(websocket, path):
 
                 # Check for winning condition
                 if player_score == 21:
-                    result = {"status": "win", "message": "Player wins with Blackjack!"}
-                    await websocket.send(json.dumps(result))
-                    break  # End game if player wins
-                elif dealer_score == 21:
                     result = {
-                        "status": "lose",
-                        "message": "Dealer wins with Blackjack!",
+                        "status": "win",
+                        "message": "Player wins with Blackjack!",
+                        "player": player.hand,
+                        "player_total": player_score,
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
                     }
                     await websocket.send(json.dumps(result))
-                    break  # End game if dealer wins
+                elif dealer_score == 21:
+                    result = {
+                        "status": "bust",
+                        "message": "Dealer wins with Blackjack!",
+                        "player": player.hand,
+                        "player_total": player_score,
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
+                    await websocket.send(json.dumps(result))
                 elif player_score > 21:
-                    result = {"status": "lose", "message": "Player busts! Dealer wins!"}
+                    result = {
+                        "status": "bust",
+                        "message": "Player busts! Dealer wins!",
+                        "player": player.hand,
+                        "player_total": player_score,
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
                     await websocket.send(json.dumps(result))
-                    break  # End game if player busts
                 elif dealer_score > 21:
-                    result = {"status": "win", "message": "Dealer busts! Player wins!"}
+                    result = {
+                        "status": "win",
+                        "message": "Dealer busts! Player wins!",
+                        "player": player.hand,
+                        "player_total": player_score,
+                        "dealer": dealer.hand,
+                        "dealer_total": dealer_score
+                    }
                     await websocket.send(json.dumps(result))
-                    break  # End game if dealer busts
+
+                # If no winning condition is met, send the current hands and scores
+                result = {
+                    "status": "continue",
+                    "player": player.hand,
+                    "player_total": player_score,
+                    "dealer": dealer.hand,
+                    "dealer_total": dealer_score
+                }
+                await websocket.send(json.dumps(result))
+
 
         except json.JSONDecodeError:
             error_response = {"status": "error", "message": "Invalid JSON format"}
