@@ -15,7 +15,6 @@ async def start_client():
 
         # Receive the initial hand and dealer's showing card
         message = await websocket.recv()
-        print("Message received from server:", message)
         
         try:
             data = json.loads(message)
@@ -38,7 +37,6 @@ async def start_client():
 
             # Receive response from server
             response = await websocket.recv()
-            print("Response from server:", response)
 
             try:
                 response_data = json.loads(response)
@@ -46,7 +44,7 @@ async def start_client():
                 print(f"Error decoding JSON response: {e}")
                 break  # Exit loop if JSON error
 
-            if "status" in response_data and response_data["status"] == "bust":
+            if "status" in response_data and response_data["status"] == "bust" or response_data["status"] == "win":
                 print(response_data["message"])
                 break
             elif move == 'stand':
