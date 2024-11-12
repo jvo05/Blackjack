@@ -1,18 +1,19 @@
 import random
 
-deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11] * 4
-
 class Hand:
-    def __init__(self) -> None:
+    def __init__(self, deck=None) -> None:
+        if deck is None:
+            deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11] * 4  # Standard-Deck mit 4 Sets
         self.hand = []
+        self.deck = deck
         self.add_random_card()
         self.add_random_card()
 
     def add_random_card(self):
         # in future this should be limited, so the deck cant be empty. But currently with one player ist cant be empty
-        card = random.choice(deck)
+        card = random.choice(self.deck)
         self.hand.append(card)
-        deck.remove(card)
+        self.deck.remove(card)
 
     def calculate_score(self):
         score = sum(self.hand)
