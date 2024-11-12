@@ -1,19 +1,31 @@
 import socket
 import json
-
-HOST = 'localhost'
-PORT = 12345
+import config
 
 # Start the client and connect to the server
 def start_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((HOST, PORT))
+    client.connect((config.host, config.port))
+
+     # Start interaction with the server
+    client.sendall(json.dumps({"action": "start"}).encode())
 
     # Receive the initial hand and dealer's showing card
     message = client.recv(1024).decode()
-    data = json.loads(message)
-    print(f"Your hand: {data['player_hand']} (Total: {data['player_total']})")
-    print(f"Dealer's showing card: {data['dealer_showing']}")
+    
+    if not message:
+        print("No data received from the server.")
+        client.close()
+        return  # Exit if there's no data
+    
+    try:
+        data = json.loads(message)
+        print(f"Your hand: {data['player_hand']} (Total: {data['player_total']})")
+        print(f"Dealer's showing card: {data['dealer_showing']}")
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON data: {e}")
+        client.close()
+        return  # Exit if there's a JSON error
 
     # Player's turn
     while True:
@@ -28,7 +40,16 @@ def start_client():
 
         # Receive response from server
         response = client.recv(1024).decode()
-        response_data = json.loads(response)
+
+        if not response:
+            print("No response from server.")
+            break  # Exit loop if no response
+
+        try:
+            response_data = json.loads(response)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON response: {e}")
+            break  # Exit loop if JSON error
 
         if "status" in response_data and response_data["status"] == "bust":
             print(response_data["result"])
