@@ -36,7 +36,7 @@ async def echo(websocket):
                 if dealer_score > 21:
                     result = {
                         "status": "win",
-                        "message": "Dealer busts! Player wins!",
+                        "message": "Dealer is over 21! You win!",
                         "player": player.hand,
                         "player_total": player.calculate_score(),
                         "dealer": dealer.hand,
@@ -45,7 +45,7 @@ async def echo(websocket):
                 elif player_score > dealer_score:
                     result = {
                         "status": "win",
-                        "message": "Player wins!",
+                        "message": "You win!",
                         "player": player.hand,
                         "player_total": player.calculate_score(),
                         "dealer": dealer.hand,
@@ -84,7 +84,7 @@ async def echo(websocket):
                 if player_score == 21:
                     result = {
                         "status": "win",
-                        "message": "Player wins with Blackjack!",
+                        "message": "You win with Blackjack!",
                         "player": player.hand,
                         "player_total": player_score,
                         "dealer": dealer.hand,
@@ -104,7 +104,7 @@ async def echo(websocket):
                 elif player_score > 21:
                     result = {
                         "status": "bust",
-                        "message": "Player busts! Dealer wins!",
+                        "message": "You are over 21! Dealer wins!",
                         "player": player.hand,
                         "player_total": player_score,
                         "dealer": dealer.hand,
@@ -114,7 +114,7 @@ async def echo(websocket):
                 elif dealer_score > 21:
                     result = {
                         "status": "win",
-                        "message": "Dealer busts! Player wins!",
+                        "message": "Dealer is over 21! You win!",
                         "player": player.hand,
                         "player_total": player_score,
                         "dealer": dealer.hand,
